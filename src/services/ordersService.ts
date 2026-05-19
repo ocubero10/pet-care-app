@@ -24,6 +24,7 @@ export const ordersService = {
     requirements: OrderRequirements;
     pickupDateTime: string;
     estimatedCompletionTime: string;
+    coatCondition?: string;
     notes?: string;
   }): Promise<Order> {
     const response = await apiClient.post<ApiSuccess<Order>>('/orders', data);
@@ -33,8 +34,13 @@ export const ordersService = {
   async updateOrder(
     id: string,
     data: Partial<{
-      notes?: string;
-      requirements?: OrderRequirements;
+      notes: string;
+      requirements: OrderRequirements;
+      coatCondition: string;
+      pickupDateTime: string;
+      estimatedCompletionTime: string;
+      services: string[];
+      status: string;
     }>
   ): Promise<Order> {
     const response = await apiClient.put<ApiSuccess<Order>>(`/orders/${id}`, data);

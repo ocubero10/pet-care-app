@@ -7,6 +7,7 @@ import { OwnerTabParamList } from './types';
 import OwnerHomeScreen from '@screens/owner/OwnerHomeScreen';
 import OrdersListScreen from '@screens/owner/OrdersListScreen';
 import PetsListScreen from '@screens/owner/PetsListScreen';
+import CalendarScreen from '@screens/CalendarScreen';
 import ProfileScreen from '@screens/ProfileScreen';
 
 const Tab = createBottomTabNavigator<OwnerTabParamList>();
@@ -14,12 +15,7 @@ const Stack = createNativeStackNavigator();
 
 const HomeStack: React.FC = () => {
   return (
-    <Stack.Navigator
-      screenOptions={{
-        headerShown: true,
-        title: 'Home',
-      }}
-    >
+    <Stack.Navigator screenOptions={{ headerShown: true, title: 'Inicio' }}>
       <Stack.Screen name="Home" component={OwnerHomeScreen} />
     </Stack.Navigator>
   );
@@ -27,12 +23,7 @@ const HomeStack: React.FC = () => {
 
 const OrdersStack: React.FC = () => {
   return (
-    <Stack.Navigator
-      screenOptions={{
-        headerShown: true,
-        title: 'My Orders',
-      }}
-    >
+    <Stack.Navigator screenOptions={{ headerShown: true, title: 'Mis citas' }}>
       <Stack.Screen name="Orders" component={OrdersListScreen} />
     </Stack.Navigator>
   );
@@ -40,25 +31,23 @@ const OrdersStack: React.FC = () => {
 
 const PetsStack: React.FC = () => {
   return (
-    <Stack.Navigator
-      screenOptions={{
-        headerShown: true,
-        title: 'My Pets',
-      }}
-    >
+    <Stack.Navigator screenOptions={{ headerShown: true, title: 'Mis mascotas' }}>
       <Stack.Screen name="Pets" component={PetsListScreen} />
+    </Stack.Navigator>
+  );
+};
+
+const CalendarStack: React.FC = () => {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: true, title: 'Calendario' }}>
+      <Stack.Screen name="Calendar" component={CalendarScreen} />
     </Stack.Navigator>
   );
 };
 
 const ProfileStack: React.FC = () => {
   return (
-    <Stack.Navigator
-      screenOptions={{
-        headerShown: true,
-        title: 'Profile',
-      }}
-    >
+    <Stack.Navigator screenOptions={{ headerShown: true, title: 'Perfil' }}>
       <Stack.Screen name="Profile" component={ProfileScreen} />
     </Stack.Navigator>
   );
@@ -66,15 +55,12 @@ const ProfileStack: React.FC = () => {
 
 const OwnerTabNavigator: React.FC = () => {
   return (
-    <Tab.Navigator
-      screenOptions={{
-        headerShown: false,
-      }}
-    >
-      <Tab.Screen name="Home" component={HomeStack} />
-      <Tab.Screen name="Orders" component={OrdersStack} />
-      <Tab.Screen name="Pets" component={PetsStack} />
-      <Tab.Screen name="Profile" component={ProfileStack} />
+    <Tab.Navigator screenOptions={{ headerShown: false }}>
+      <Tab.Screen name="Home" component={HomeStack} options={{ tabBarLabel: 'Inicio' }} />
+      <Tab.Screen name="Orders" component={OrdersStack} options={{ tabBarLabel: 'Citas' }} />
+      <Tab.Screen name="Pets" component={PetsStack} options={{ tabBarLabel: 'Mascotas' }} />
+      <Tab.Screen name="Calendar" component={CalendarStack} options={{ tabBarLabel: 'Calendario' }} />
+      <Tab.Screen name="Profile" component={ProfileStack} options={{ tabBarLabel: 'Perfil' }} />
     </Tab.Navigator>
   );
 };

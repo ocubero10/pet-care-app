@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView, Pressable, Alert } from 'react-native';
 import { Text } from 'react-native-paper';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -11,20 +11,40 @@ import { apiClient } from '@utils/api';
 import CustomTextInput from '@components/TextInput';
 import Button from '@components/Button';
 
-const registerSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters'),
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
-  phone: z.string().regex(/^\d{10}$/, 'Phone must be 10 digits'),
-  role: z.enum(['owner', 'staff', 'driver']).refine((v) => !!v, 'Please select a role'),
-});
+const registerSchema = z
+  .object({
+    name: z.string().min(2, 'Nombre debe tener al menos 2 caracteres'),
+    email: z.string().email('Correo electrónico inválido'),
+    password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
+    phone: z.string().regex(/^\d{8}$/, 'Teléfono debe tener 8 dígitos'),
+    role: z.enum(['owner', 'staff', 'driver']).refine((v) => !!v, 'Seleccioná un rol'),
+    cedula: z.string().optional(),
+    petName: z.string().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.role === 'owner') {
+      if (!data.cedula || !/^\d{9,12}$/.test(data.cedula)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['cedula'],
+          message: 'Cédula / DIMEX: 9 a 12 dígitos',
+        });
+      }
+      if (!data.petName || data.petName.trim().length < 1) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['petName'],
+          message: 'Pet name is required',
+        });
+      }
+    }
+  });
 
 type RegisterFormData = z.infer<typeof registerSchema>;
 
 const roleOptions: Array<{ label: string; value: 'owner' | 'staff' | 'driver' }> = [
-  { label: 'Pet Owner', value: 'owner' },
-  { label: 'Grooming Staff', value: 'staff' },
-  { label: 'Driver', value: 'driver' },
+  { label: 'Cliente', value: 'owner' },
+  { label: 'Administrador', value: 'staff' },
 ];
 
 const RegisterScreen: React.FC = () => {
@@ -46,6 +66,8 @@ const RegisterScreen: React.FC = () => {
       password: '',
       phone: '',
       role: undefined,
+      cedula: '',
+      petName: '',
     },
   });
 
@@ -58,10 +80,13 @@ const RegisterScreen: React.FC = () => {
       dispatch(loginSuccess(response));
       apiClient.setAuthToken(response.token);
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : 'Registration failed. Please try again.';
-      setGeneralError(message);
-      dispatch(loginFailure(message));
+      const genericMessage = 'No se pudo crear la cuenta. Verificá los datos e intentá de nuevo.';
+      setGeneralError(genericMessage);
+      dispatch(loginFailure(genericMessage));
+      Alert.alert('Error', genericMessage);
+      // Backend message kept in console for debugging only:
+      // eslint-disable-next-line no-console
+      console.warn('Register error:', (error as { message?: string })?.message);
     } finally {
       setIsLoading(false);
     }
@@ -75,8 +100,8 @@ const RegisterScreen: React.FC = () => {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
       <View style={styles.header}>
-        <Text style={styles.title}>Create Account</Text>
-        <Text style={styles.subtitle}>Join Pet Care Pro</Text>
+        <Text style={styles.title}>Crear cuenta</Text>
+        <Text style={styles.subtitle}>Bienvenido a Liz & Pets</Text>
       </View>
 
       {generalError && (
@@ -86,12 +111,18 @@ const RegisterScreen: React.FC = () => {
       )}
 
       <View style={styles.form}>
-        <Text style={styles.sectionTitle}>Select Your Role</Text>
+        <Text style={styles.sectionTitle}>Tipo de usuario</Text>
         <View style={styles.roleSelector}>
           {roleOptions.map((option) => (
-            <View key={option.value} style={styles.roleOption}>
+            <Pressable
+              key={option.value}
+              onPress={() => handleRoleSelect(option.value)}
+              style={[
+                styles.roleOption,
+                selectedRole === option.value && styles.roleOptionSelected,
+              ]}
+            >
               <Text
-                onPress={() => handleRoleSelect(option.value)}
                 style={[
                   styles.roleOptionText,
                   selectedRole === option.value && styles.roleOptionTextSelected,
@@ -99,20 +130,20 @@ const RegisterScreen: React.FC = () => {
               >
                 {option.label}
               </Text>
-            </View>
+            </Pressable>
           ))}
         </View>
         {errors.role && <Text style={styles.errorText}>{errors.role.message}</Text>}
 
-        <Text style={[styles.sectionTitle, { marginTop: 24 }]}>Account Information</Text>
+        <Text style={[styles.sectionTitle, { marginTop: 24 }]}>Información de la cuenta</Text>
 
         <Controller
           control={control}
           name="name"
           render={({ field: { onChange, value } }) => (
             <CustomTextInput
-              label="Full Name"
-              placeholder="John Doe"
+              label="Nombre completo"
+              placeholder="Juan Pérez"
               value={value}
               onChangeText={onChange}
               error={errors.name?.message}
@@ -127,8 +158,8 @@ const RegisterScreen: React.FC = () => {
           name="email"
           render={({ field: { onChange, value } }) => (
             <CustomTextInput
-              label="Email Address"
-              placeholder="your@email.com"
+              label="Correo electrónico"
+              placeholder="tu@correo.com"
               value={value}
               onChangeText={onChange}
               error={errors.email?.message}
@@ -144,8 +175,8 @@ const RegisterScreen: React.FC = () => {
           name="phone"
           render={({ field: { onChange, value } }) => (
             <CustomTextInput
-              label="Phone Number"
-              placeholder="1234567890"
+              label="Teléfono (8 dígitos)"
+              placeholder="88887777"
               value={value}
               onChangeText={onChange}
               error={errors.phone?.message}
@@ -156,12 +187,49 @@ const RegisterScreen: React.FC = () => {
           )}
         />
 
+        {selectedRole === 'owner' && (
+          <>
+            <Controller
+              control={control}
+              name="cedula"
+              render={({ field: { onChange, value } }) => (
+                <CustomTextInput
+                  label="Cédula o DIMEX"
+                  placeholder="123456789 o 155812345678"
+                  value={value ?? ''}
+                  onChangeText={onChange}
+                  error={errors.cedula?.message}
+                  required
+                  keyboardType="number-pad"
+                  editable={!isLoading}
+                />
+              )}
+            />
+
+            <Controller
+              control={control}
+              name="petName"
+              render={({ field: { onChange, value } }) => (
+                <CustomTextInput
+                  label="Nombre de la mascota"
+                  placeholder="Firulais"
+                  value={value ?? ''}
+                  onChangeText={onChange}
+                  error={errors.petName?.message}
+                  required
+                  editable={!isLoading}
+                />
+              )}
+            />
+          </>
+        )}
+
         <Controller
           control={control}
           name="password"
           render={({ field: { onChange, value } }) => (
             <CustomTextInput
-              label="Password"
+              label="Contraseña"
               placeholder="••••••••"
               value={value}
               onChangeText={onChange}
@@ -174,7 +242,7 @@ const RegisterScreen: React.FC = () => {
         />
 
         <Button
-          title="Create Account"
+          title="Crear cuenta"
           onPress={handleSubmit(onSubmit)}
           loading={isLoading}
           disabled={isLoading}
@@ -243,6 +311,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     alignItems: 'center',
   },
+  roleOptionSelected: {
+    borderColor: '#EC4899',
+  },
   roleOptionText: {
     fontSize: 13,
     fontWeight: '500',
@@ -250,8 +321,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   roleOptionTextSelected: {
-    color: '#4CAF50',
-    borderColor: '#4CAF50',
+    color: '#EC4899',
   },
   errorText: {
     color: '#d32f2f',

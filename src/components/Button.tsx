@@ -1,6 +1,7 @@
 import React from 'react';
 import { TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { Text } from 'react-native-paper';
+import { colors, radius } from '@constants/theme';
 
 interface ButtonProps {
   onPress: () => void;
@@ -28,7 +29,7 @@ const Button: React.FC<ButtonProps> = ({
       disabled={isDisabled}
     >
       {loading ? (
-        <ActivityIndicator color={variant === 'secondary' ? '#4CAF50' : '#fff'} />
+        <ActivityIndicator color={variant === 'secondary' ? colors.primary : colors.textOnPrimary} />
       ) : (
         <Text style={[styles.text, styles[`${variant}Text`]]}>{title}</Text>
       )}
@@ -38,21 +39,21 @@ const Button: React.FC<ButtonProps> = ({
 
 const styles = StyleSheet.create({
   button: {
-    borderRadius: 8,
+    borderRadius: radius.md,
     justifyContent: 'center',
     alignItems: 'center',
     minHeight: 44,
   },
   primary: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: colors.primary,
   },
   secondary: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: colors.surfaceMuted,
     borderWidth: 1,
-    borderColor: '#ddd',
+    borderColor: colors.border,
   },
   danger: {
-    backgroundColor: '#d32f2f',
+    backgroundColor: colors.danger,
   },
   small: {
     paddingVertical: 8,
@@ -74,13 +75,13 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   primaryText: {
-    color: '#fff',
+    color: colors.textOnPrimary,
   },
   secondaryText: {
-    color: '#333',
+    color: colors.text,
   },
   dangerText: {
-    color: '#fff',
+    color: colors.textOnPrimary,
   },
 });
 

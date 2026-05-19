@@ -19,9 +19,15 @@ export const petsService = {
     name: string;
     breed: string;
     age: number;
-    size: 'small' | 'medium' | 'large';
+    sex: 'male' | 'female';
+    weight: number;
+    coatColor: string;
+    size?: 'small' | 'medium' | 'large';
+    allergies?: string[];
+    vaccines?: string[];
     specialNotes?: string;
     profileImage?: string;
+    ownerId?: string;
   }): Promise<Pet> {
     const response = await apiClient.post<ApiSuccess<Pet>>('/pets', data);
     return response.data;

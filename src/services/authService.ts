@@ -10,6 +10,8 @@ export const authService = {
     password: string;
     phone: string;
     role: 'owner' | 'staff' | 'driver';
+    cedula?: string;
+    petName?: string;
   }): Promise<AuthResponse> {
     const response = await apiClient.post<ApiSuccess<AuthResponse>>('/auth/register', data);
     return response.data;

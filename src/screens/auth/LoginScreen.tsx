@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, ScrollView, Alert, Image } from 'react-native';
 import { Text } from 'react-native-paper';
+import { BRAND_NAME, BRAND_TAGLINE, BRAND_LOGO } from '@constants/branding';
+import PawTrail from '@components/PawTrail';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useNavigation, NavigationProp } from '@react-navigation/native';
-import { AuthStackParamList } from '../../navigation/types';
 import { useAppDispatch } from '@hooks/index';
 import { loginStart, loginSuccess, loginFailure } from '@store/authSlice';
 import { authService } from '@services/authService';
@@ -14,15 +14,14 @@ import CustomTextInput from '@components/TextInput';
 import Button from '@components/Button';
 
 const loginSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  email: z.string().email('Correo electrónico inválido'),
+  password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
 });
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
 const LoginScreen: React.FC = () => {
   const dispatch = useAppDispatch();
-  const navigation = useNavigation<NavigationProp<AuthStackParamList>>();
   const [isLoading, setIsLoading] = useState(false);
   const [generalError, setGeneralError] = useState<string | null>(null);
 
@@ -52,9 +51,12 @@ const LoginScreen: React.FC = () => {
       dispatch(loginSuccess(response));
       apiClient.setAuthToken(response.token);
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Login failed. Please try again.';
-      setGeneralError(message);
-      dispatch(loginFailure(message));
+      const generic = 'Email o contraseña incorrectos.';
+      setGeneralError(generic);
+      dispatch(loginFailure(generic));
+      Alert.alert('Error', generic);
+      // eslint-disable-next-line no-console
+      console.warn('Login error:', (error as { message?: string })?.message);
     } finally {
       setIsLoading(false);
     }
@@ -63,8 +65,17 @@ const LoginScreen: React.FC = () => {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
       <View style={styles.header}>
-        <Text style={styles.title}>Pet Care Pro</Text>
-        <Text style={styles.subtitle}>Grooming & Care Services</Text>
+        <PawTrail count={6} />
+        {BRAND_LOGO ? (
+          <Image source={BRAND_LOGO} style={styles.logo} resizeMode="contain" />
+        ) : (
+          <View style={styles.logoPlaceholder}>
+            <Text style={styles.logoEmoji}>🐾</Text>
+          </View>
+        )}
+        <Text style={styles.title}>{BRAND_NAME}</Text>
+        <Text style={styles.subtitle}>{BRAND_TAGLINE}</Text>
+        <PawTrail count={5} />
       </View>
 
       {generalError && (
@@ -79,8 +90,8 @@ const LoginScreen: React.FC = () => {
           name="email"
           render={({ field: { onChange, value } }) => (
             <CustomTextInput
-              label="Email Address"
-              placeholder="your@email.com"
+              label="Correo electrónico"
+              placeholder="tu@correo.com"
               value={value}
               onChangeText={onChange}
               error={errors.email?.message}
@@ -96,7 +107,7 @@ const LoginScreen: React.FC = () => {
           name="password"
           render={({ field: { onChange, value } }) => (
             <CustomTextInput
-              label="Password"
+              label="Contraseña"
               placeholder="••••••••"
               value={value}
               onChangeText={onChange}
@@ -109,17 +120,18 @@ const LoginScreen: React.FC = () => {
         />
 
         <Button
-          title="Login"
+          title="Ingresar"
           onPress={handleSubmit(onSubmit)}
           loading={isLoading}
           disabled={isLoading}
         />
       </View>
 
-      <TouchableOpacity style={styles.footer} onPress={() => navigation.navigate('Register')}>
-        <Text style={styles.footerText}>Don't have an account? </Text>
-        <Text style={styles.linkText}>Sign up</Text>
-      </TouchableOpacity>
+      <View style={styles.footer}>
+        <Text style={styles.footerText}>
+          ¿No tenés cuenta? Pedí a un administrador que te registre.
+        </Text>
+      </View>
     </ScrollView>
   );
 };
@@ -135,16 +147,36 @@ const styles = StyleSheet.create({
   },
   header: {
     marginBottom: 40,
+    alignItems: 'center',
+  },
+  logo: {
+    width: 120,
+    height: 120,
+    marginBottom: 16,
+  },
+  logoPlaceholder: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    backgroundColor: '#FCE7F3',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  logoEmoji: {
+    fontSize: 48,
   },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
     color: '#333',
-    marginBottom: 10,
+    marginBottom: 8,
+    textAlign: 'center',
   },
   subtitle: {
     fontSize: 16,
     color: '#666',
+    textAlign: 'center',
   },
   errorBox: {
     backgroundColor: '#ffebee',
@@ -173,7 +205,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   linkText: {
-    color: '#4CAF50',
+    color: '#EC4899',
     fontSize: 14,
     fontWeight: '600',
   },

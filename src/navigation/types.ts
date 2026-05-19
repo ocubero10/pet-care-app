@@ -16,13 +16,15 @@ export type OwnerTabParamList = {
   Home: undefined;
   Orders: undefined;
   Pets: undefined;
+  Calendar: undefined;
   Profile: undefined;
 };
 
 export type StaffTabParamList = {
   Dashboard: undefined;
   Orders: undefined;
-  RequirementClarification: undefined;
+  Pets: undefined;
+  Calendar: undefined;
   Profile: undefined;
 };
 

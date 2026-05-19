@@ -1,22 +1,28 @@
 {
   "expo": {
-    "name": "Pet Care Pro",
+    "name": "Liz & Pets",
     "slug": "pet-care-mobile",
     "version": "1.0.0",
     "sdkVersion": "54.0.0",
     "orientation": "portrait",
     "scheme": "petcarepro",
-    "platforms": ["ios", "android"],
+    "platforms": ["ios", "android", "web"],
+    "icon": "./assets/logo.png",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.petcarepro.app"
+      "bundleIdentifier": "com.petcarepro.app",
+      "icon": "./assets/logo.png"
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#4CAF50"
+        "foregroundImage": "./assets/logo.png",
+        "backgroundColor": "#EC4899"
       },
       "package": "com.petcarepro.app",
       "usesCleartextTraffic": true
+    },
+    "web": {
+      "favicon": "./assets/logo.png"
     },
     "extra": {
       "eas": {
