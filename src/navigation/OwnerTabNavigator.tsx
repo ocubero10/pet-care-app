@@ -1,7 +1,9 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { Ionicons } from '@expo/vector-icons';
 import { OwnerTabParamList } from './types';
+import { colors } from '@constants/theme';
 
 // Screens
 import OwnerHomeScreen from '@screens/owner/OwnerHomeScreen';
@@ -55,12 +57,55 @@ const ProfileStack: React.FC = () => {
 
 const OwnerTabNavigator: React.FC = () => {
   return (
-    <Tab.Navigator screenOptions={{ headerShown: false }}>
-      <Tab.Screen name="Home" component={HomeStack} options={{ tabBarLabel: 'Inicio' }} />
-      <Tab.Screen name="Orders" component={OrdersStack} options={{ tabBarLabel: 'Citas' }} />
-      <Tab.Screen name="Pets" component={PetsStack} options={{ tabBarLabel: 'Mascotas' }} />
-      <Tab.Screen name="Calendar" component={CalendarStack} options={{ tabBarLabel: 'Calendario' }} />
-      <Tab.Screen name="Profile" component={ProfileStack} options={{ tabBarLabel: 'Perfil' }} />
+    <Tab.Navigator
+      screenOptions={{
+        headerShown: false,
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.textMuted,
+        tabBarStyle: { borderTopColor: colors.borderSoft, backgroundColor: colors.surface, height: 60, paddingBottom: 6, paddingTop: 6 },
+        tabBarLabelStyle: { fontSize: 11, fontWeight: '600' },
+      }}
+    >
+      <Tab.Screen
+        name="Home"
+        component={HomeStack}
+        options={{
+          tabBarLabel: 'Inicio',
+          tabBarIcon: ({ color, size }) => <Ionicons name="home" color={color} size={size} />,
+        }}
+      />
+      <Tab.Screen
+        name="Orders"
+        component={OrdersStack}
+        options={{
+          tabBarLabel: 'Citas',
+          tabBarIcon: ({ color, size }) => <Ionicons name="bookmark" color={color} size={size} />,
+        }}
+      />
+      <Tab.Screen
+        name="Pets"
+        component={PetsStack}
+        options={{
+          tabBarLabel: 'Mascotas',
+          tabBarIcon: ({ color, size }) => <Ionicons name="paw" color={color} size={size} />,
+        }}
+      />
+      <Tab.Screen
+        name="Calendar"
+        component={CalendarStack}
+        options={{
+          tabBarLabel: 'Calendario',
+          tabBarIcon: ({ color, size }) => <Ionicons name="calendar" color={color} size={size} />,
+        }}
+      />
+      <Tab.Screen
+        name="Profile"
+        component={ProfileStack}
+        options={{
+          tabBarLabel: 'Perfil',
+          tabBarIcon: ({ color, size }) => <Ionicons name="person" color={color} size={size} />,
+        }}
+      />
     </Tab.Navigator>
   );
 };
