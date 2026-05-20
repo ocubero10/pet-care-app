@@ -32,10 +32,13 @@ class ApiClient {
 
   private parseError(error: AxiosError): AppError {
     if (error.response) {
-      const data = error.response.data as Record<string, unknown>;
+      const data = (error.response.data as Record<string, unknown>) || {};
+      // The pet-care-server API returns errors as { success: false, error, code },
+      // not as { message }. Read both so we surface the real reason.
+      const apiMessage = (data.error as string) || (data.message as string);
       return {
-        code: `ERR_${error.response.status}`,
-        message: (data.message as string) || error.message,
+        code: (data.code as string) || `ERR_${error.response.status}`,
+        message: apiMessage || error.message,
         details: data,
       };
     }

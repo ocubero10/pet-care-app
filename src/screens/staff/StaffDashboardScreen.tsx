@@ -273,11 +273,15 @@ const StaffDashboardScreen: React.FC = () => {
       setShowCreateForm(false);
       await loadUsers();
     } catch (error) {
-      const generic = 'No se pudo crear la cuenta. Verificá los datos e intentá de nuevo.';
-      setGeneralError(generic);
-      Alert.alert('Error', generic);
+      const apiMessage = (error as { message?: string })?.message;
+      const finalMessage =
+        apiMessage && apiMessage !== 'Request failed'
+          ? apiMessage
+          : 'No se pudo crear la cuenta. Verificá los datos e intentá de nuevo.';
+      setGeneralError(finalMessage);
+      Alert.alert('No se pudo crear la cuenta', finalMessage);
       // eslint-disable-next-line no-console
-      console.warn('Create user error:', (error as { message?: string })?.message);
+      console.warn('Create user error:', apiMessage);
     } finally {
       setIsLoading(false);
     }
