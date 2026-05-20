@@ -18,24 +18,47 @@ const inject = `
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
   <style id="inter-override">
-    html, body, #root, #root * {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+    /* React Native Web renders text components with fontFamily: 'System'.
+       Redefining 'System' as @font-face that points at Inter lets us
+       fix missing Latin-Extended glyphs (tildes, ñ, ¿/¡) on Android
+       browsers with limited system fonts, WITHOUT touching the icon
+       font-families (Ionicons, MaterialCommunityIcons, etc.) used by
+       @expo/vector-icons. */
+    @font-face {
+      font-family: 'System';
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: local('Inter'), local('Inter-Regular'),
+           url('https://rsms.me/inter/font-files/Inter-Regular.woff2?v=4.0') format('woff2');
     }
-    /* Keep icon font-families intact for @expo/vector-icons (they use Unicode PUA glyphs). */
-    [style*="MaterialCommunityIcons"],
-    [style*="Ionicons"],
-    [style*="AntDesign"],
-    [style*="Entypo"],
-    [style*="EvilIcons"],
-    [style*="Feather"],
-    [style*="FontAwesome"],
-    [style*="Fontisto"],
-    [style*="Foundation"],
-    [style*="MaterialIcons"],
-    [style*="Octicons"],
-    [style*="SimpleLineIcons"],
-    [style*="Zocial"] {
-      font-family: revert !important;
+    @font-face {
+      font-family: 'System';
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
+      src: local('Inter Medium'), local('Inter-Medium'),
+           url('https://rsms.me/inter/font-files/Inter-Medium.woff2?v=4.0') format('woff2');
+    }
+    @font-face {
+      font-family: 'System';
+      font-style: normal;
+      font-weight: 600;
+      font-display: swap;
+      src: local('Inter SemiBold'), local('Inter-SemiBold'),
+           url('https://rsms.me/inter/font-files/Inter-SemiBold.woff2?v=4.0') format('woff2');
+    }
+    @font-face {
+      font-family: 'System';
+      font-style: normal;
+      font-weight: 700;
+      font-display: swap;
+      src: local('Inter Bold'), local('Inter-Bold'),
+           url('https://rsms.me/inter/font-files/Inter-Bold.woff2?v=4.0') format('woff2');
+    }
+    /* Default for body-level inheritance only — does not override inline styles. */
+    html, body, #root {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     }
   </style>
 `;
