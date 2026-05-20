@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { View, StyleSheet, ScrollView, Pressable, Alert } from 'react-native';
 import { Text } from 'react-native-paper';
 import { useForm, Controller } from 'react-hook-form';
@@ -122,6 +123,15 @@ const StaffDashboardScreen: React.FC = () => {
     loadUsers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roleFilter]);
+
+  // Also refresh the list whenever the dashboard screen regains focus, so
+  // changes made elsewhere (a new user created or an edit) show up.
+  useFocusEffect(
+    useCallback(() => {
+      loadUsers();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [roleFilter])
+  );
 
   const loadUsers = async () => {
     try {

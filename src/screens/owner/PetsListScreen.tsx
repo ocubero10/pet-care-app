@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { View, StyleSheet, ScrollView, Pressable, Alert } from 'react-native';
 import { Text } from 'react-native-paper';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useFocusEffect } from '@react-navigation/native';
 import { useAppSelector } from '@hooks/index';
 import { petsService, usersService } from '@services/index';
 import { Pet, Client } from '@definitions/index';
@@ -78,10 +79,15 @@ const PetsListScreen: React.FC = () => {
     },
   });
 
-  useEffect(() => {
-    loadPets();
-    if (isStaff) loadClients();
-  }, [isStaff]);
+  // useFocusEffect re-runs every time the screen comes into focus (e.g. when
+  // returning from another tab where a new client/pet was just created), so
+  // the form's client dropdown and the pets list stay fresh.
+  useFocusEffect(
+    useCallback(() => {
+      loadPets();
+      if (isStaff) loadClients();
+    }, [isStaff])
+  );
 
   const loadPets = async () => {
     try {

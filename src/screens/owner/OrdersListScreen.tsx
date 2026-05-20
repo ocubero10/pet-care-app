@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { View, StyleSheet, ScrollView, Pressable, Alert } from 'react-native';
 import { Text } from 'react-native-paper';
 import { useForm, Controller } from 'react-hook-form';
@@ -82,15 +83,16 @@ const OrdersListScreen: React.FC = () => {
     },
   });
 
-  useEffect(() => {
-    loadOrders();
-    if (isStaff) {
-      loadClients();
-    } else {
-      // Owner loads their own pets
-      loadOwnPets();
-    }
-  }, [isStaff]);
+  useFocusEffect(
+    useCallback(() => {
+      loadOrders();
+      if (isStaff) {
+        loadClients();
+      } else {
+        loadOwnPets();
+      }
+    }, [isStaff])
+  );
 
   const loadOrders = async () => {
     try {
