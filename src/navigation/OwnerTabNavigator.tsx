@@ -71,7 +71,9 @@ const OwnerTabNavigator: React.FC = () => {
         component={HomeStack}
         options={{
           tabBarLabel: 'Inicio',
-          tabBarIcon: ({ color, size }) => <Ionicons name="home" color={color} size={size} />,
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons name={focused ? 'home' : 'home-outline'} color={color} size={size} />
+          ),
         }}
       />
       <Tab.Screen
@@ -79,7 +81,9 @@ const OwnerTabNavigator: React.FC = () => {
         component={OrdersStack}
         options={{
           tabBarLabel: 'Citas',
-          tabBarIcon: ({ color, size }) => <Ionicons name="bookmark" color={color} size={size} />,
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons name={focused ? 'clipboard' : 'clipboard-outline'} color={color} size={size} />
+          ),
         }}
       />
       <Tab.Screen
@@ -87,7 +91,9 @@ const OwnerTabNavigator: React.FC = () => {
         component={PetsStack}
         options={{
           tabBarLabel: 'Mascotas',
-          tabBarIcon: ({ color, size }) => <Ionicons name="paw" color={color} size={size} />,
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons name={focused ? 'paw' : 'paw-outline'} color={color} size={size} />
+          ),
         }}
       />
       <Tab.Screen
@@ -95,7 +101,9 @@ const OwnerTabNavigator: React.FC = () => {
         component={CalendarStack}
         options={{
           tabBarLabel: 'Calendario',
-          tabBarIcon: ({ color, size }) => <Ionicons name="calendar" color={color} size={size} />,
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons name={focused ? 'calendar' : 'calendar-outline'} color={color} size={size} />
+          ),
         }}
       />
       <Tab.Screen
@@ -103,7 +111,9 @@ const OwnerTabNavigator: React.FC = () => {
         component={ProfileStack}
         options={{
           tabBarLabel: 'Perfil',
-          tabBarIcon: ({ color, size }) => <Ionicons name="person" color={color} size={size} />,
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons name={focused ? 'person-circle' : 'person-circle-outline'} color={color} size={size} />
+          ),
         }}
       />
     </Tab.Navigator>
