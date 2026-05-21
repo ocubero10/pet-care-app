@@ -6,7 +6,7 @@ interface ApiSuccess<T> { success: boolean; data: T; message?: string }
 export const authService = {
   async register(data: {
     name: string;
-    email: string;
+    email?: string;
     password: string;
     phone: string;
     role: 'owner' | 'staff' | 'driver';

@@ -34,7 +34,13 @@ const splitToArray = (value?: string): string[] =>
 const userSchema = z
   .object({
     name: z.string().min(2, 'Nombre debe tener al menos 2 caracteres'),
-    email: z.string().email('Email inválido'),
+    email: z
+      .string()
+      .optional()
+      .refine(
+        (v) => !v || z.string().email().safeParse(v).success,
+        'Email inválido'
+      ),
     password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
     phone: z.string().regex(/^\d{8}$/, 'Teléfono debe tener 8 dígitos'),
     role: z.enum(['owner', 'staff']).refine((v) => !!v, 'Rol requerido'),
@@ -49,6 +55,14 @@ const userSchema = z
     petVaccines: z.string().optional(),
   })
   .superRefine((data, ctx) => {
+    // Email is required for staff (they need it to log in); optional for owners (clients).
+    if (data.role !== 'owner' && !data.email) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['email'],
+        message: 'Email requerido',
+      });
+    }
     if (data.role !== 'owner') return;
 
     const issues: Array<[keyof typeof data, string]> = [];
@@ -257,11 +271,11 @@ const StaffDashboardScreen: React.FC = () => {
     try {
       const payload: Record<string, unknown> = {
         name: data.name,
-        email: data.email,
         password: data.password,
         phone: data.phone,
         role: data.role,
       };
+      if (data.email) payload.email = data.email;
       if (data.role === 'owner') {
         payload.cedula = data.cedula;
         payload.petName = data.petName;
@@ -276,7 +290,11 @@ const StaffDashboardScreen: React.FC = () => {
 
       const response = await apiClient.post<RegisterApiResponse>('/auth/register', payload);
       const userName = response.data?.user?.name ?? data.name;
-      setGeneralSuccess(`Cuenta creada para ${userName} (${data.email})`);
+      setGeneralSuccess(
+        data.email
+          ? `Cuenta creada para ${userName} (${data.email})`
+          : `Cuenta creada para ${userName}`
+      );
       reset();
       setSelectedRole(null);
       setSelectedSex(null);
@@ -374,12 +392,16 @@ const StaffDashboardScreen: React.FC = () => {
           name="email"
           render={({ field: { onChange, value } }) => (
             <CustomTextInput
-              label="Correo electrónico"
+              label={
+                selectedRole === 'owner'
+                  ? 'Correo electrónico (opcional)'
+                  : 'Correo electrónico'
+              }
               placeholder="cliente@ejemplo.com"
-              value={value}
+              value={value ?? ''}
               onChangeText={onChange}
               error={errors.email?.message}
-              required
+              required={selectedRole !== 'owner'}
               keyboardType="email-address"
               editable={!isLoading}
             />

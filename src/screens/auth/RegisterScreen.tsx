@@ -14,7 +14,13 @@ import Button from '@components/Button';
 const registerSchema = z
   .object({
     name: z.string().min(2, 'Nombre debe tener al menos 2 caracteres'),
-    email: z.string().email('Correo electrónico inválido'),
+    email: z
+      .string()
+      .optional()
+      .refine(
+        (v) => !v || z.string().email().safeParse(v).success,
+        'Correo electrónico inválido'
+      ),
     password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
     phone: z.string().regex(/^\d{8}$/, 'Teléfono debe tener 8 dígitos'),
     role: z.enum(['owner', 'staff', 'driver']).refine((v) => !!v, 'Seleccioná un rol'),
@@ -22,6 +28,14 @@ const registerSchema = z
     petName: z.string().optional(),
   })
   .superRefine((data, ctx) => {
+    // Email is required for staff/driver (needed for login); optional for owners (clients).
+    if (data.role !== 'owner' && !data.email) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['email'],
+        message: 'Correo electrónico requerido',
+      });
+    }
     if (data.role === 'owner') {
       if (!data.cedula || !/^\d{9,12}$/.test(data.cedula)) {
         ctx.addIssue({
@@ -158,12 +172,16 @@ const RegisterScreen: React.FC = () => {
           name="email"
           render={({ field: { onChange, value } }) => (
             <CustomTextInput
-              label="Correo electrónico"
+              label={
+                selectedRole === 'owner'
+                  ? 'Correo electrónico (opcional)'
+                  : 'Correo electrónico'
+              }
               placeholder="tu@correo.com"
-              value={value}
+              value={value ?? ''}
               onChangeText={onChange}
               error={errors.email?.message}
-              required
+              required={selectedRole !== 'owner'}
               keyboardType="email-address"
               editable={!isLoading}
             />
